@@ -130,10 +130,6 @@
       color: #2ee66b;
     }
 
-    .mid h2 {
-      color: #ffd32a;
-    }
-
     .lower h2 {
       color: #ff4757;
     }
@@ -229,7 +225,6 @@
     }
 
     .green { background: #2ee66b; }
-    .yellow { background: #ffd32a; }
     .red { background: #ff4757; }
     .blue { background: #45c2ff; }
 
@@ -265,12 +260,11 @@
   <div class="container">
     <header>
       <h1>Eliminatórias 7 Pessoas</h1>
-      <p>Formato com Upper, Mid e Lower. Clique no vencedor de cada partida.</p>
+      <p>Formato com Upper e Lower. Perdeu na Upper, cai para a Lower.</p>
     </header>
 
     <div class="legend">
       <span><span class="dot green"></span>Upper</span>
-      <span><span class="dot yellow"></span>Mid</span>
       <span><span class="dot red"></span>Lower</span>
       <span><span class="dot blue"></span>Final</span>
     </div>
@@ -298,9 +292,9 @@
     <section class="card">
       <h2>Como funciona</h2>
       <p class="info">
-        Primeiro, edite os nomes dos participantes e clique em <strong>Atualizar nomes</strong>.
-        Depois, clique no jogador vencedor de cada confronto. Os vencedores e perdedores serão
-        enviados automaticamente para as próximas fases.
+        Edite os nomes dos participantes e clique em <strong>Atualizar nomes</strong>.
+        Depois, clique no vencedor de cada confronto. O Jogador 7 passa direto para a semifinal da Upper.
+        Quem perde na Upper cai para a Lower e enfrenta jogadores que já estavam na Lower.
       </p>
     </section>
 
@@ -313,11 +307,6 @@
       <section class="bracket lower">
         <h2>Lower Bracket</h2>
         <div id="lower"></div>
-      </section>
-
-      <section class="bracket mid">
-        <h2>Mid Bracket</h2>
-        <div id="mid"></div>
       </section>
 
       <section class="bracket final">
@@ -375,7 +364,12 @@
     }
 
     function selectWinner(matchId, playerA, playerB, selected) {
-      if (!playerA || !playerB || playerA.includes("Aguardando") || playerB.includes("Aguardando")) {
+      if (
+        !playerA ||
+        !playerB ||
+        playerA.includes("Aguardando") ||
+        playerB.includes("Aguardando")
+      ) {
         return;
       }
 
@@ -388,16 +382,21 @@
 
     function removeDependentResults(matchId) {
       const dependencyMap = {
-        "U1": ["U4", "L1", "M1", "FU", "ML1", "GF"],
-        "U2": ["U4", "L1", "M1", "FU", "ML1", "GF"],
-        "U3": ["U5", "M2", "FU", "ML1", "GF"],
-        "U4": ["FU", "M1", "ML1", "GF"],
-        "U5": ["FU", "M2", "ML1", "GF"],
-        "L1": ["M1", "ML1", "GF"],
-        "M1": ["ML1", "GF"],
-        "M2": ["ML1", "GF"],
-        "FU": ["GF"],
-        "ML1": ["GF"]
+        "U1": ["U4", "L1", "L3", "L4", "L5", "LF", "GF"],
+        "U2": ["U4", "L1", "L3", "L4", "L5", "LF", "GF"],
+        "U3": ["U5", "L2", "L3", "L4", "L5", "LF", "GF"],
+
+        "U4": ["FU", "L3", "L4", "L5", "LF", "GF"],
+        "U5": ["FU", "L4", "L5", "LF", "GF"],
+
+        "FU": ["LF", "GF"],
+
+        "L1": ["L3", "L5", "LF", "GF"],
+        "L2": ["L3", "L5", "LF", "GF"],
+        "L3": ["L5", "LF", "GF"],
+        "L4": ["L5", "LF", "GF"],
+        "L5": ["LF", "GF"],
+        "LF": ["GF"]
       };
 
       const dependents = dependencyMap[matchId] || [];
@@ -411,7 +410,9 @@
     function makeMatch(matchId, title, playerA, playerB) {
       const selected = winners[matchId];
 
-      const disabled = !playerA || !playerB ||
+      const disabled =
+        !playerA ||
+        !playerB ||
         playerA.includes("Aguardando") ||
         playerB.includes("Aguardando");
 
@@ -419,7 +420,7 @@
         <div class="match">
           <div class="match-title">${title}</div>
 
-          <button 
+          <button
             class="player-btn ${selected === playerA ? "selected" : ""} ${disabled ? "disabled" : ""}"
             onclick="selectWinner('${matchId}', '${escapeText(playerA)}', '${escapeText(playerB)}', '${escapeText(playerA)}')"
           >
@@ -427,7 +428,7 @@
             ${selected === playerA ? "✓" : ""}
           </button>
 
-          <button 
+          <button
             class="player-btn ${selected === playerB ? "selected" : ""} ${disabled ? "disabled" : ""}"
             onclick="selectWinner('${matchId}', '${escapeText(playerA)}', '${escapeText(playerB)}', '${escapeText(playerB)}')"
           >
@@ -462,7 +463,6 @@
 
       const upper = document.getElementById("upper");
       const lower = document.getElementById("lower");
-      const mid = document.getElementById("mid");
       const final = document.getElementById("final");
 
       upper.innerHTML = `
@@ -471,8 +471,8 @@
         ${makeMatch("U3", "Upper R1 - Jogo 3", p5, p6)}
 
         <div class="match">
-          <div class="match-title">Bye</div>
-          <div class="bye">${p7} passa direto para a semifinal do Upper</div>
+          <div class="match-title">Bye único</div>
+          <div class="bye">${p7} passa direto para a semifinal da Upper</div>
         </div>
 
         ${makeMatch("U4", "Upper Semifinal 1", waitText(winners.U1), waitText(winners.U2))}
@@ -482,18 +482,15 @@
       `;
 
       lower.innerHTML = `
-        ${makeMatch("L1", "Lower - Jogo 1", waitText(losers.U1), waitText(losers.U2))}
+        ${makeMatch("L1", "Lower R1 - Jogo 1", waitText(losers.U1), waitText(losers.U2))}
 
-        <div class="match">
-          <div class="match-title">Bye Lower</div>
-          <div class="bye">${waitText(losers.U3)} aguarda no Mid</div>
-        </div>
-      `;
+        ${makeMatch("L2", "Lower R1 - Jogo 2", waitText(losers.U3), waitText(losers.U4))}
 
-      mid.innerHTML = `
-        ${makeMatch("M1", "Mid - Jogo 1", waitText(losers.U4), waitText(winners.L1))}
-        ${makeMatch("M2", "Mid - Jogo 2", waitText(losers.U5), waitText(losers.U3))}
-        ${makeMatch("ML1", "Final Mid/Lower", waitText(winners.M1), waitText(winners.M2))}
+        ${makeMatch("L3", "Lower R2 - Jogo 1", waitText(winners.L1), waitText(winners.L2))}
+
+        ${makeMatch("L4", "Lower R2 - Jogo 2", waitText(losers.U5), waitText(winners.L3))}
+
+        ${makeMatch("L5", "Final Lower", waitText(winners.L4), waitText(losers.FU))}
       `;
 
       let finalHtml = "";
@@ -502,7 +499,7 @@
         "GF",
         "Grande Final",
         waitText(winners.FU),
-        waitText(winners.ML1)
+        waitText(winners.L5)
       );
 
       if (winners.GF) {
