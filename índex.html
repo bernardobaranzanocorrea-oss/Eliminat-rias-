@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eliminatórias 7 Pessoas</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background: #08111f;
+      color: #ffffff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: #b7c0d1;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #111c30;
+      border: 1px solid #26344f;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    }
+
+    .card h2 {
+      margin-bottom: 15px;
+      font-size: 22px;
+    }
+
+    .players {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .players input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #33476b;
+      background: #08111f;
+      color: white;
+      font-size: 15px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 15px;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+      opacity: 0.9;
+    }
+
+    .btn-primary {
+      background: #45c2ff;
+      color: #06101d;
+    }
+
+    .btn-danger {
+      background: #ff5876;
+      color: white;
+    }
+
+    .btn-random {
+      background: #9b7cff;
+      color: white;
+    }
+
+    .brackets {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+
+    .bracket {
+      background: #111c30;
+      border-radius: 16px;
+      padding: 18px;
+      border: 1px solid #26344f;
+    }
+
+    .bracket h2 {
+      margin-bottom: 15px;
+      font-size: 21px;
+    }
+
+    .upper h2 {
+      color: #2ee66b;
+    }
+
+    .mid h2 {
+      color: #ffd32a;
+    }
+
+    .lower h2 {
+      color: #ff4757;
+    }
+
+    .final h2 {
+      color: #45c2ff;
+    }
+
+    .match {
+      background: #08111f;
+      border: 1px solid #2a3a58;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 15px;
+    }
+
+    .match-title {
+      color: #b7c0d1;
+      font-size: 14px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .player-btn {
+      width: 100%;
+      text-align: left;
+      margin-bottom: 8px;
+      background: #182640;
+      color: white;
+      border: 1px solid #314563;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .player-btn:hover {
+      background: #26395e;
+    }
+
+    .player-btn.selected {
+      background: #2ee66b;
+      color: #06101d;
+      border-color: #2ee66b;
+    }
+
+    .player-btn.disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .bye {
+      background: #1d2d4a;
+      border: 1px dashed #45c2ff;
+      color: #cfeeff;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .champion {
+      background: linear-gradient(135deg, #ffd32a, #ff9f1a);
+      color: #111;
+      text-align: center;
+      border-radius: 14px;
+      padding: 20px;
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .legend span {
+      background: #111c30;
+      border-radius: 999px;
+      padding: 10px 14px;
+      border: 1px solid #26344f;
+      font-size: 14px;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .green { background: #2ee66b; }
+    .yellow { background: #ffd32a; }
+    .red { background: #ff4757; }
+    .blue { background: #45c2ff; }
+
+    .info {
+      color: #b7c0d1;
+      line-height: 1.5;
+      font-size: 15px;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 14px;
+      }
+
+      header h1 {
+        font-size: 24px;
+      }
+
+      .card,
+      .bracket {
+        padding: 15px;
+      }
+
+      .player-btn {
+        font-size: 14px;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Eliminatórias 7 Pessoas</h1>
+      <p>Formato com Upper, Mid e Lower. Clique no vencedor de cada partida.</p>
+    </header>
+
+    <div class="legend">
+      <span><span class="dot green"></span>Upper</span>
+      <span><span class="dot yellow"></span>Mid</span>
+      <span><span class="dot red"></span>Lower</span>
+      <span><span class="dot blue"></span>Final</span>
+    </div>
+
+    <section class="card">
+      <h2>Participantes</h2>
+
+      <div class="players">
+        <input id="p1" value="Jogador 1" />
+        <input id="p2" value="Jogador 2" />
+        <input id="p3" value="Jogador 3" />
+        <input id="p4" value="Jogador 4" />
+        <input id="p5" value="Jogador 5" />
+        <input id="p6" value="Jogador 6" />
+        <input id="p7" value="Jogador 7" />
+      </div>
+
+      <div class="buttons">
+        <button class="btn-primary" onclick="updateNames()">Atualizar nomes</button>
+        <button class="btn-random" onclick="shufflePlayers()">Sortear nomes</button>
+        <button class="btn-danger" onclick="resetBracket()">Resetar chave</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Como funciona</h2>
+      <p class="info">
+        Primeiro, edite os nomes dos participantes e clique em <strong>Atualizar nomes</strong>.
+        Depois, clique no jogador vencedor de cada confronto. Os vencedores e perdedores serão
+        enviados automaticamente para as próximas fases.
+      </p>
+    </section>
+
+    <main class="brackets">
+      <section class="bracket upper">
+        <h2>Upper Bracket</h2>
+        <div id="upper"></div>
+      </section>
+
+      <section class="bracket lower">
+        <h2>Lower Bracket</h2>
+        <div id="lower"></div>
+      </section>
+
+      <section class="bracket mid">
+        <h2>Mid Bracket</h2>
+        <div id="mid"></div>
+      </section>
+
+      <section class="bracket final">
+        <h2>Final</h2>
+        <div id="final"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let players = [];
+    let winners = {};
+    let losers = {};
+
+    function getPlayersFromInputs() {
+      players = [
+        document.getElementById("p1").value || "Jogador 1",
+        document.getElementById("p2").value || "Jogador 2",
+        document.getElementById("p3").value || "Jogador 3",
+        document.getElementById("p4").value || "Jogador 4",
+        document.getElementById("p5").value || "Jogador 5",
+        document.getElementById("p6").value || "Jogador 6",
+        document.getElementById("p7").value || "Jogador 7"
+      ];
+    }
+
+    function updateNames() {
+      getPlayersFromInputs();
+      winners = {};
+      losers = {};
+      render();
+    }
+
+    function resetBracket() {
+      winners = {};
+      losers = {};
+      render();
+    }
+
+    function shufflePlayers() {
+      getPlayersFromInputs();
+
+      for (let i = players.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [players[i], players[j]] = [players[j], players[i]];
+      }
+
+      players.forEach((name, index) => {
+        document.getElementById("p" + (index + 1)).value = name;
+      });
+
+      winners = {};
+      losers = {};
+      render();
+    }
+
+    function selectWinner(matchId, playerA, playerB, selected) {
+      if (!playerA || !playerB || playerA.includes("Aguardando") || playerB.includes("Aguardando")) {
+        return;
+      }
+
+      winners[matchId] = selected;
+      losers[matchId] = selected === playerA ? playerB : playerA;
+
+      removeDependentResults(matchId);
+      render();
+    }
+
+    function removeDependentResults(matchId) {
+      const dependencyMap = {
+        "U1": ["U4", "L1", "M1", "FU", "ML1", "GF"],
+        "U2": ["U4", "L1", "M1", "FU", "ML1", "GF"],
+        "U3": ["U5", "M2", "FU", "ML1", "GF"],
+        "U4": ["FU", "M1", "ML1", "GF"],
+        "U5": ["FU", "M2", "ML1", "GF"],
+        "L1": ["M1", "ML1", "GF"],
+        "M1": ["ML1", "GF"],
+        "M2": ["ML1", "GF"],
+        "FU": ["GF"],
+        "ML1": ["GF"]
+      };
+
+      const dependents = dependencyMap[matchId] || [];
+
+      dependents.forEach(id => {
+        delete winners[id];
+        delete losers[id];
+      });
+    }
+
+    function makeMatch(matchId, title, playerA, playerB) {
+      const selected = winners[matchId];
+
+      const disabled = !playerA || !playerB ||
+        playerA.includes("Aguardando") ||
+        playerB.includes("Aguardando");
+
+      return `
+        <div class="match">
+          <div class="match-title">${title}</div>
+
+          <button 
+            class="player-btn ${selected === playerA ? "selected" : ""} ${disabled ? "disabled" : ""}"
+            onclick="selectWinner('${matchId}', '${escapeText(playerA)}', '${escapeText(playerB)}', '${escapeText(playerA)}')"
+          >
+            ${playerA}
+            ${selected === playerA ? "✓" : ""}
+          </button>
+
+          <button 
+            class="player-btn ${selected === playerB ? "selected" : ""} ${disabled ? "disabled" : ""}"
+            onclick="selectWinner('${matchId}', '${escapeText(playerA)}', '${escapeText(playerB)}', '${escapeText(playerB)}')"
+          >
+            ${playerB}
+            ${selected === playerB ? "✓" : ""}
+          </button>
+        </div>
+      `;
+    }
+
+    function escapeText(text) {
+      return String(text)
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/"/g, "&quot;");
+    }
+
+    function waitText(text) {
+      return text || "Aguardando...";
+    }
+
+    function render() {
+      getPlayersFromInputs();
+
+      const p1 = players[0];
+      const p2 = players[1];
+      const p3 = players[2];
+      const p4 = players[3];
+      const p5 = players[4];
+      const p6 = players[5];
+      const p7 = players[6];
+
+      const upper = document.getElementById("upper");
+      const lower = document.getElementById("lower");
+      const mid = document.getElementById("mid");
+      const final = document.getElementById("final");
+
+      upper.innerHTML = `
+        ${makeMatch("U1", "Upper R1 - Jogo 1", p1, p2)}
+        ${makeMatch("U2", "Upper R1 - Jogo 2", p3, p4)}
+        ${makeMatch("U3", "Upper R1 - Jogo 3", p5, p6)}
+
+        <div class="match">
+          <div class="match-title">Bye</div>
+          <div class="bye">${p7} passa direto para a semifinal do Upper</div>
+        </div>
+
+        ${makeMatch("U4", "Upper Semifinal 1", waitText(winners.U1), waitText(winners.U2))}
+        ${makeMatch("U5", "Upper Semifinal 2", waitText(winners.U3), p7)}
+
+        ${makeMatch("FU", "Final Upper", waitText(winners.U4), waitText(winners.U5))}
+      `;
+
+      lower.innerHTML = `
+        ${makeMatch("L1", "Lower - Jogo 1", waitText(losers.U1), waitText(losers.U2))}
+
+        <div class="match">
+          <div class="match-title">Bye Lower</div>
+          <div class="bye">${waitText(losers.U3)} aguarda no Mid</div>
+        </div>
+      `;
+
+      mid.innerHTML = `
+        ${makeMatch("M1", "Mid - Jogo 1", waitText(losers.U4), waitText(winners.L1))}
+        ${makeMatch("M2", "Mid - Jogo 2", waitText(losers.U5), waitText(losers.U3))}
+        ${makeMatch("ML1", "Final Mid/Lower", waitText(winners.M1), waitText(winners.M2))}
+      `;
+
+      let finalHtml = "";
+
+      finalHtml += makeMatch(
+        "GF",
+        "Grande Final",
+        waitText(winners.FU),
+        waitText(winners.ML1)
+      );
+
+      if (winners.GF) {
+        finalHtml += `
+          <div class="champion">
+            Campeão: ${winners.GF}
+          </div>
+        `;
+      }
+
+      final.innerHTML = finalHtml;
+    }
+
+    render();
+  </script>
+</body>
+</html>
